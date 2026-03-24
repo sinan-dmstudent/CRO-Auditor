@@ -1,0 +1,24 @@
+
+> audit-store@0.1.0 lint
+> eslint
+
+
+C:\Users\muham\Projects\Conversion\app\layout.tsx
+  20:9  warning  Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+  21:9  warning  Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+C:\Users\muham\Projects\Conversion\components\LandingView.tsx
+   49:37  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  135:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\muham\Projects\Conversion\components\ProcessingView.tsx
+  75:60  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\muham\Projects\Conversion\components\ResultsView.tsx
+  20:11  warning  'total' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\muham\Projects\Conversion\lib\playwright.ts
+  14:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 7 problems (3 errors, 4 warnings)
+
