@@ -5,24 +5,32 @@ import { LandingView } from "@/components/LandingView";
 import { ProcessingView } from "@/components/ProcessingView";
 import { ResultsView } from "@/components/ResultsView";
 
-type ViewState = "landing" | "processing" | "results";
-type Insight = {
-  section: string;
-  severity: "High" | "Medium" | "Low";
-  description: string;
-  actionable_step: string;
-};
+const STORAGE_KEY = "cro_audit_cache";
+
+function getSaved() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function Home() {
-  const [view, setView] = useState<ViewState>("landing");
-  const [url, setUrl] = useState("");
-  const [results, setResults] = useState<any>(null);
+  const saved = typeof window !== "undefined" ? getSaved() : null;
+
+  const [view, setView] = useState<"landing" | "processing" | "results">(
+    saved ? "results" : "landing"
+  );
+  const [url, setUrl] = useState<string>(saved?.url ?? "");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [results, setResults] = useState<any>(saved?.results ?? null);
 
   const handleAudit = async (auditUrl: string) => {
     setUrl(auditUrl);
     setView("processing");
 
-    // Minimum wait time for the animation to feel real (at least 2.5s)
     const startTime = Date.now();
 
     try {
@@ -32,42 +40,43 @@ export default function Home() {
         body: JSON.stringify({ url: auditUrl }),
       });
 
-      if (!response.ok) {
-        throw new Error("Audit failed");
-      }
+      if (!response.ok) throw new Error("Audit failed");
 
       const data = await response.json();
       setResults(data);
 
-      // Ensure we showed the loading screen for at least a bit
+      // Persist so results survive page refreshes / browser restarts
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ url: auditUrl, results: data }));
+
       const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, 3000 - elapsed); // 3 seconds min
-
-      setTimeout(() => {
-        setView("results");
-      }, remaining);
-
+      const remaining = Math.max(0, 3000 - elapsed);
+      setTimeout(() => setView("results"), remaining);
     } catch (error) {
       console.error(error);
-      setResults({
-        "Homepage": [{
-          section: "Network",
-          severity: "High",
-          description: "Could not complete audit.",
-          actionable_step: "Please check your connection and try again."
-        }]
-      });
+      const errData = {
+        Homepage: [
+          {
+            section: "Network",
+            severity: "High",
+            description: "Could not complete audit.",
+            actionable_step: "Please check your connection and try again.",
+          },
+        ],
+      };
+      setResults(errData);
       setView("results");
     }
   };
 
-  if (view === "processing") {
-    return <ProcessingView />;
-  }
+  const handleNewAudit = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setResults(null);
+    setUrl("");
+    setView("landing");
+  };
 
-  if (view === "results") {
-    return <ResultsView data={results} url={url} />;
-  }
-
+  if (view === "processing") return <ProcessingView />;
+  if (view === "results")
+    return <ResultsView data={results} url={url} onNewAudit={handleNewAudit} />;
   return <LandingView onAudit={handleAudit} isLoading={false} />;
 }

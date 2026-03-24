@@ -37,9 +37,10 @@ interface AuditResults {
 interface ResultsViewProps {
     data: AuditResults | Insight[]; // Handling backward compatibility briefly or strict typed
     url: string;
+    onNewAudit?: () => void;
 }
 
-export function ResultsView({ data, url }: ResultsViewProps) {
+export function ResultsView({ data, url, onNewAudit }: ResultsViewProps) {
     // Normalize data: ensure we have the structured format. 
     // If it's the old array format (unlikely now), we guard against it.
     const structuredData = Array.isArray(data)
@@ -215,7 +216,7 @@ export function ResultsView({ data, url }: ResultsViewProps) {
                                 <span className="hidden sm:inline">Download PDF</span>
                             </button>
                             <button
-                                onClick={() => window.location.reload()}
+                                onClick={() => onNewAudit ? onNewAudit() : window.location.reload()}
                                 className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm"
                             >
                                 <span className="material-symbols-outlined text-lg">add</span>
