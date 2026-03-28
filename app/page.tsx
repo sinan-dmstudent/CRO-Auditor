@@ -7,6 +7,16 @@ import { ResultsView } from "@/components/ResultsView";
 
 const STORAGE_KEY = "cro_audit_cache";
 
+// Typed result structure — matches exactly what route.ts returns
+interface AuditResults {
+  Homepage?: { section: string; severity: string; description: string; actionable_step: string }[];
+  "Collection Page"?: { section: string; severity: string; description: string; actionable_step: string }[];
+  "Product Page"?: { section: string; severity: string; description: string; actionable_step: string }[];
+  "Cart Page"?: { section: string; severity: string; description: string; actionable_step: string }[];
+  competitor_analysis?: { title: string; description: string; impact: string; actionable_step: string }[];
+  scraped_urls?: { homepage: string; collection: string; product: string; cart: string };
+}
+
 function getSaved() {
   if (typeof window === "undefined") return null;
   try {
@@ -24,8 +34,7 @@ export default function Home() {
     saved ? "results" : "landing"
   );
   const [url, setUrl] = useState<string>(saved?.url ?? "");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [results, setResults] = useState<any>(saved?.results ?? null);
+  const [results, setResults] = useState<AuditResults | null>(saved?.results ?? null);
 
   const handleAudit = async (auditUrl: string) => {
     setUrl(auditUrl);
@@ -76,7 +85,8 @@ export default function Home() {
   };
 
   if (view === "processing") return <ProcessingView />;
-  if (view === "results")
-    return <ResultsView data={results} url={url} onNewAudit={handleNewAudit} />;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (view === "results" && results)
+    return <ResultsView data={results as any} url={url} onNewAudit={handleNewAudit} />;
   return <LandingView onAudit={handleAudit} isLoading={false} />;
 }

@@ -40,7 +40,7 @@ export const AUDIT_RULES = `
 
 16. Invisible Analysis Mechanism: Never reference the source data in output. Do NOT use phrases like "Based on the screenshot", "According to the HTML", "The image shows", or "The DOM structure indicates." Present all findings as direct observations of the live store experience.
 
-17. Visual Hierarchy (Dominance) Rule: Evaluate the visual priority of the page. The Primary CTA (e.g., "Add to Cart") must be the most visually dominant element. Evaluate its contrast against the background. A low-contrast button is High Severity regardless of its size.
+17. Visual Hierarchy (Dominance) Rule: Evaluate the visual priority of the page on the mobile screenshot (390px viewport). The Primary CTA (e.g., "Add to Cart") must be the most visually dominant interactive element on mobile. A low-contrast or small button on mobile is High Severity. Do NOT flag CTA styling issues that only appear at desktop widths — Rule 6 takes precedence for desktop-only layout concerns.
 
 18. Niche Psychology Mandate: Determine whether the purchase intent is Emotional/Status-Driven (e.g., Luxury, Apparel, Beauty) or Rational/Logic-Driven (e.g., Supplements, Tools, B2B):
     - Emotional niches: Focus on Aspiration, Status, Exclusivity, and Social Proof.
@@ -49,3 +49,4 @@ export const AUDIT_RULES = `
 
 19. Self-Verification Before Output: Before finalizing your response, review every insight where you have flagged something as "Missing" or "High Severity". Re-confirm each one against the evidence. Remove or downgrade any insight you cannot support with direct evidence from the HTML or screenshot.
 `;
+

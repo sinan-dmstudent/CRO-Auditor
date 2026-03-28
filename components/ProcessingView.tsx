@@ -92,7 +92,7 @@ export function ProcessingView() {
                                 </div>
                                 <div className="pb-8">
                                     <h4 className="text-slate-900 dark:text-white font-bold text-lg animate-pulse">Running Heuristic Analysis</h4>
-                                    <p className="text-slate-500 text-sm">Checking 50+ UX checkpoints across Home, Product, and Cart pages.</p>
+                                    <p className="text-slate-500 text-sm">Checking 43 CRO checkpoints across Homepage, Collection, Product, and Cart pages.</p>
 
                                     {/* Sub-progress bar within the step */}
                                     <div className="mt-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">

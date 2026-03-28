@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { AUDIT_RULES } from '@/lib/auditRules';
 import { getPageInstructions } from '@/lib/auditInstructions';
 
-export const maxDuration = 60;
+export const maxDuration = 300; // Raised from 60s — crawl (20-30s) + 4 GPT-4o calls need headroom
 
 interface Insight {
     section: string;
@@ -34,19 +34,21 @@ const RequestSchema = z.object({
     competitorUrl: z.string().url().optional().or(z.literal(''))
 });
 
-// --- SECTION ORDER DEFINITIONS ---
+// ─── SECTION ORDER ───
+// CRITICAL: names here MUST exactly match the checklist item names in auditInstructions.ts
+// and what GPT-4o returns in the "section" field. Mismatch = sort falls back to position 999.
 const SECTION_ORDER = {
     "Homepage": [
         "Top Bar / Announcement Bar",
-        "Header Section (Menu, Search, Cart, Account)",
-        "Hero Section (Banners, Headline, Copy, CTA Button)",
-        "Categories Section (Shop by Categories with Image + CTA)",
+        "Header Section",
+        "Hero Section",
+        "Categories Section",
         "Best Sellers Section",
         "Featured Product Section",
-        "USP Section (Icons with USP text)",
+        "USP Section",
         "UGC / Video Section",
         "Testimonials / Reviews Section",
-        "About Us Section (Short brand intro + CTA to About page)",
+        "About Us Section",
         "Certification Section",
         "Partners Section",
         "Instagram Feed",
@@ -57,18 +59,18 @@ const SECTION_ORDER = {
         "Collection Banner",
         "Product Grid Structure",
         "Filters & Sorting",
-        "Product Card Elements (image, price, rating, CTA, badges)",
+        "Product Card Elements",
         "Pagination / Infinite Scroll"
     ],
     "Product Page": [
         "Product Title",
         "Rating / Review Stars",
-        "Product Description (Benefits-focused)",
+        "Product Description",
         "Image Gallery",
         "Pricing Clarity",
         "Offers / Incentives",
         "Variant Selectors",
-        "Primary CTA (Add to Cart / Buy Now)",
+        "Primary CTA",
         "Trust Elements",
         "Delivery / Return Information",
         "Review Section",
@@ -113,6 +115,7 @@ function buildExclusionList(nicheDesc: string, pricePoint: string): string[] {
     }
 
     // Newsletter is always optional — never flag it as missing
+    // Note: auditInstructions.ts already marks it as OPTIONAL — this exclusion adds backend enforcement
     excluded.push("Newsletter / Email Capture");
 
     return excluded;
@@ -213,8 +216,8 @@ Rules:
 - pricePoint is "luxury" if products are clearly premium/designer/high-end
 - pricePoint is "budget" if store emphasizes deals, discounts, or mass-market pricing
 
-HTML Snippet (first 8000 chars):
-${crawlResult.home?.html?.slice(0, 8000)}`
+HTML Snippet (body content, chars 2000–14000 to skip <head> and hit visible copy):
+${crawlResult.home?.html?.slice(2000, 14000)}`
                 }],
                 response_format: { type: "json_object" },
                 temperature: 0,
@@ -331,19 +334,12 @@ ${sectionName} Mobile Screenshot:
             }
         };
 
-        // 5. Execute Audits Sequentially
+        // 5. Execute Audits Sequentially (no artificial delay — each GPT-4o call takes 15-25s naturally)
         console.log("Starting Sequential Audit Engine...");
-        const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
         const homeResult = await analyzeSection("Homepage", crawlResult.home, nicheContext);
-        await delay(2000);
-
         const collectionResult = await analyzeSection("Collection Page", crawlResult.collection, nicheContext);
-        await delay(2000);
-
         const productResult = await analyzeSection("Product Page", crawlResult.product, nicheContext);
-        await delay(2000);
-
         const cartResult = await analyzeSection("Cart Page", crawlResult.cart, nicheContext);
 
         // 6. Competitor Analysis (if provided)
@@ -367,11 +363,17 @@ TASK:
 3. Every gap must relate to elements in the Master Checklist only.
 4. Output STRICT JSON: { "competitor_analysis": [ { "title": "...", "description": "...", "impact": "High", "actionable_step": "..." } ] }
 
-PRIMARY STORE HTML:
-${crawlResult.home?.html}
+PRIMARY STORE — Homepage HTML:
+${crawlResult.home?.html?.slice(0, 6000)}
 
-COMPETITOR STORE HTML:
-${competitorCrawlResult.home.html}
+PRIMARY STORE — Product Page HTML:
+${crawlResult.product?.html?.slice(0, 4000) || '(Product page not detected)'}
+
+COMPETITOR STORE — Homepage HTML:
+${competitorCrawlResult.home.html?.slice(0, 6000)}
+
+COMPETITOR STORE — Product Page HTML:
+${competitorCrawlResult.product?.html?.slice(0, 4000) || '(Product page not detected)'}
             `;
 
             try {
@@ -413,7 +415,14 @@ ${competitorCrawlResult.home.html}
             "Collection Page": sortInsights("Collection Page", rawReport["Collection Page"] || []),
             "Product Page": sortInsights("Product Page", rawReport["Product Page"] || []),
             "Cart Page": sortInsights("Cart Page", rawReport["Cart Page"] || []),
-            "competitor_analysis": competitorAnalysis
+            "competitor_analysis": competitorAnalysis,
+            // Bug Fix: populate scraped_urls so the UI coverage badges actually display
+            "scraped_urls": {
+                homepage: crawlResult.home?.url || "Not Detected",
+                collection: crawlResult.collection?.url || "Not Detected",
+                product: crawlResult.product?.url || "Not Detected",
+                cart: crawlResult.cart?.url || "Not Detected"
+            }
         };
 
         return NextResponse.json(finalReport);

@@ -59,23 +59,29 @@ export const PrintableReport = forwardRef<HTMLDivElement, PrintableReportProps>(
     // Strict Page Order
     const ORDERED_PAGES = ["Homepage", "Collection Page", "Product Page", "Cart Page"];
 
+    // CRITICAL: These names must EXACTLY match auditInstructions.ts and ResultsView.tsx
+    // Mismatch = insights sort to position 999 and appear in random order in the PDF
     const PAGE_CHECKLISTS: Record<string, string[]> = {
         "Homepage": [
-            "Top Bar/Announcement bar", "Header Section", "Hero Section", "Categories section", "Best Sellers section",
-            "Featured Product Section", "Product labels", "USP section", "UGC/Video section", "Testimonials",
-            "About Us", "Certification", "Partners", "Instagram feed", "Footer"
+            "Top Bar / Announcement Bar", "Header Section", "Hero Section", "Categories Section",
+            "Best Sellers Section", "Featured Product Section", "USP Section", "UGC / Video Section",
+            "Testimonials / Reviews Section", "About Us Section", "Certification Section",
+            "Partners Section", "Instagram Feed", "Footer", "Newsletter / Email Capture"
         ],
         "Collection Page": [
-            "Collection Banner", "Product grid structure", "Filters & Sorting", "Product card elements", "Pagination/infinite scroll"
+            "Collection Banner", "Product Grid Structure", "Filters & Sorting",
+            "Product Card Elements", "Pagination / Infinite Scroll"
         ],
         "Product Page": [
-            "Product title", "Rating/Preview stars", "Product description", "Image gallery", "Pricing clarity",
-            "Offers/incentives", "Variant selectors", "Primary CTAs", "Trust elements", "Delivery/Return info",
-            "Review Section", "Persuasion elements", "Objection handling", "Information hierarchy", "Cross-selling"
+            "Product Title", "Rating / Review Stars", "Product Description", "Image Gallery",
+            "Pricing Clarity", "Offers / Incentives", "Variant Selectors", "Primary CTA",
+            "Trust Elements", "Delivery / Return Information", "Review Section",
+            "Persuasion Elements", "Objection Handling", "Information Hierarchy",
+            "Cross-Selling / Related Products"
         ],
         "Cart Page": [
-            "Cart layout", "Product summary", "Price breakdown", "Trust elements", "Friction analysis",
-            "CTA clarity", "Distraction risks", "Cross-selling"
+            "Cart Layout", "Product Summary", "Price Breakdown", "Trust Elements",
+            "Friction Analysis", "CTA Clarity", "Distraction Risks", "Cross-Selling"
         ]
     };
 

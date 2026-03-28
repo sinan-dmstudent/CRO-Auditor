@@ -265,26 +265,19 @@ export function ResultsView({ data, url, onNewAudit }: ResultsViewProps) {
                                 </div>
                             </div>
                         </div>
-                        <div className="w-full lg:w-80 shrink-0">
-                            <a
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group relative block overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl cursor-pointer"
-                            >
-                                <div
-                                    className="w-full aspect-[4/3] bg-slate-200 dark:bg-slate-800 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-                                    style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuB7RRSCMDo1rvUq-zygJTglOrWQGd4ehXWlIzTVz6vWtopcCaNUNHR5I1v1GY2K_Sp9CJyFrr7Q37qUBQFoQ9CVdf-lzIS5nmw_wbUAbW7XCDQ3gIsdAqKlJU76ixZtA9ij9eYku5alKPg2tpYi0QFH0OObhmIlliLIWHmXkbwyrE3OVNBIDV8KWbS6POBlKXGIoIsElVBwGzxf361RNyT071CUrOYJ_i6vaI0XIiyosjrUOr0Bv2E6nP-U-d769h7JZn-aJlSaulI')" }}
-                                >
-                                </div>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-                                    <span className="text-white text-xs font-medium flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">open_in_new</span>
-                                        Visit Site
-                                    </span>
-                                </div>
-                            </a>
-                        </div>
+                        <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl cursor-pointer bg-slate-50 dark:bg-slate-900 aspect-[4/3] w-full lg:w-80 shrink-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-3">store</span>
+                            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{displayUrl}</span>
+                            <span className="text-xs text-slate-400 dark:text-slate-600 mt-1 flex items-center gap-1">
+                                <span className="material-symbols-outlined text-sm">open_in_new</span>
+                                Visit Site
+                            </span>
+                        </a>
                     </div>
 
                     {/* Section-Based Insights Stream */}
@@ -399,7 +392,7 @@ export function ResultsView({ data, url, onNewAudit }: ResultsViewProps) {
                 {/* Simple Footer */}
                 <footer className="max-w-7xl mx-auto w-full px-6 lg:px-20 py-10 border-t border-slate-200 dark:border-slate-800 mt-auto">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-sm text-slate-500">© 2024 Audit My Store. No login required.</p>
+                        <p className="text-sm text-slate-500">© 2025 Audit My Store. No login required.</p>
                         <div className="flex gap-6">
                             <a className="text-sm text-slate-500 hover:text-primary" href="#">Terms</a>
                             <a className="text-sm text-slate-500 hover:text-primary" href="#">Privacy</a>
@@ -421,6 +414,17 @@ export function ResultsView({ data, url, onNewAudit }: ResultsViewProps) {
  */
 function AuditInsightCard({ item, getBadgeStyles }: { item: Insight, getBadgeStyles: (severity: string) => string }) {
     const [isFixed, setIsFixed] = React.useState(false);
+    const [isIgnored, setIsIgnored] = React.useState(false);
+
+    // Ignored: collapse to a slim dismissed bar
+    if (isIgnored) {
+        return (
+            <div className="bg-slate-50 dark:bg-slate-900/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl px-5 py-3 flex items-center justify-between">
+                <span className="text-sm text-slate-400 line-through">{item.section}</span>
+                <button onClick={() => setIsIgnored(false)} className="text-xs font-medium text-slate-400 hover:text-primary underline transition-colors">Undo</button>
+            </div>
+        );
+    }
 
     return (
         <div className={cn(
@@ -450,13 +454,13 @@ function AuditInsightCard({ item, getBadgeStyles }: { item: Insight, getBadgeSty
             </div>
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-3">
-                    <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Problem & Pain</h4>
+                    <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Problem &amp; Pain</h4>
                     <div className={cn("text-slate-700 dark:text-slate-300 leading-relaxed text-base transition-all whitespace-pre-wrap", isFixed && "text-slate-400")}>
                         {item.description}
                     </div>
                 </div>
                 <div className="space-y-3">
-                    <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest">The Fix & Future</h4>
+                    <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest">The Fix &amp; Future</h4>
                     <div className={cn("text-slate-700 dark:text-slate-300 leading-relaxed text-base transition-all whitespace-pre-wrap", isFixed && "text-slate-400")}>
                         {item.actionable_step}
                     </div>
@@ -467,11 +471,9 @@ function AuditInsightCard({ item, getBadgeStyles }: { item: Insight, getBadgeSty
                 <div className="flex items-center gap-3">
                     {!isFixed ? (
                         <>
-                            <button className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Ignore</button>
+                            <button onClick={() => setIsIgnored(true)} className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Ignore</button>
                             <button
-                                onClick={() => {
-                                    setIsFixed(true);
-                                }}
+                                onClick={() => setIsFixed(true)}
                                 className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-primary/90 transition-all active:scale-95 flex items-center gap-2"
                             >
                                 <span>Mark as Fixed</span>
